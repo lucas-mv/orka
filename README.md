@@ -8,11 +8,11 @@ orka is an open source community-based semi-federated social network project wri
 flowchart LR
     user@{ shape: circle, label: "Users" }
     client[Client]
-    subgraph Main deployment
+    subgraph Main instace
     main[Main orka node]
     main_db[(CassandraDB)]
     end
-    subgraph Node deployment
+    subgraph Node instances
     db[(PostgreSQL)]
     blob[(BLOB storage)]
     node@{ shape: procs, label: "Federated orka node"}
@@ -32,6 +32,7 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 |-|-|-|
 |id |UUID|PK|
 |handle|string||
+|name|string||
 |bio|string||
 |created_at|datetime||
 |updated_at|datetime||
@@ -47,6 +48,7 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 |orka_communities|type|comment|
 |-|-|-|
 |id|UUID|PK|
+|name|string||
 |description|string||
 |created_at|datetime||
 |updated_at|datetime||
@@ -62,3 +64,22 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 |updated_at|datetime||
 
 ### Cassandra data structure
+
+|instances|type|comment|
+|-|-|-|
+|instance_host|string|key|
+|description|string||
+|owner_user_id|UUID||
+|blocked_until|datetime|nullable|
+|created_at|datetime||
+|updated_at|datetime||
+
+|users|type|comment|
+|-|-|-|
+|id|UUID|key|
+|name|string||
+|bio|string||
+|role|enum|admin, moderator, support|
+|created_at|datetime||
+|updated_at|datetime||
+
