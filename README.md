@@ -28,12 +28,22 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 
 ### PostgreSQL data structure
 
+|orka_instance|type|comment|
+|-|-|-|
+|instance_host|string|PK|
+|instance_password_hash|string||
+|instance_password_salt|UUID||
+|instance_pepper|UUID||
+
 |orka_users|type|comment|
 |-|-|-|
 |id |UUID|PK|
 |handle|string||
+|role|enum|instance_admin, instance_moderator, instance_user|
 |name|string||
 |bio|string||
+|password_hash|string||
+|salt|UUID||
 |created_at|datetime||
 |updated_at|datetime||
 
@@ -42,8 +52,13 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 |id|UUID|PK|
 |user_id|UUID|FK orka_users[id]|
 |community_id|UUID|FK orka_communities[id]|
+|thread_id|UUID||
+|orginal_thread_post|bool||
+|flags|int64|int bit style content flags (removed reason, type of content, general warnings, etc)|
+|text|string||
+|images_attached|int8|number of images associated with post (view blob storage section)|
+|video_attached|bool||
 |created_at|datetime||
-|text|datetime||
 
 |orka_communities|type|comment|
 |-|-|-|
@@ -63,14 +78,31 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 |created_at|datetime||
 |updated_at|datetime||
 
+|orka_user_follows|type|comment|
+|-|-|-|
+|id|UUID|PK|
+|user_id|UUID|FK orka_users[id]|
+|follow_id|UUID||
+|follow_instance_id|string||
+|mutual_follow|bool||
+|created_at|datetime||
+|updated_at|datetime||
+
 ### Cassandra data structure
 
 |instances|type|comment|
 |-|-|-|
 |instance_host|string|key|
+|name|string|key|
 |description|string||
 |owner_user_id|UUID||
+|owner_email|string||
+|owner_secondary_contact|string||
+|legal_information|string||
 |blocked_until|datetime|nullable|
+|federation_status|enum|federated, banned, deleted|
+|support_history|list[string]||
+|moderation_strikes|int8|3 strikes and you're out|
 |created_at|datetime||
 |updated_at|datetime||
 
@@ -79,6 +111,8 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 |id|UUID|key|
 |name|string||
 |bio|string||
+|password_hash|string||
+|salt|string||
 |role|enum|admin, moderator, support|
 |created_at|datetime||
 |updated_at|datetime||
