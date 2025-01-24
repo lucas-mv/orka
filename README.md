@@ -8,9 +8,9 @@ orka is an open source community-based semi-federated social network project wri
 flowchart LR
     user@{ shape: circle, label: "Users" }
     client[Client]
-    subgraph Main instace
-    main[Main orka node]
-    main_db[(CassandraDB)]
+    subgraph Mother instance
+    mother[Mother orka node]
+    mother_db[(CassandraDB)]
     end
     subgraph Node instances
     db[(PostgreSQL)]
@@ -19,12 +19,12 @@ flowchart LR
     end
     node --> db
     node --> blob
-    main ---|HTTP| node
-    user --> client --> main
-    main --> main_db
+    mother ---|HTTP| node
+    user --> client --> mother
+    mother --> mother_db
 ```
 
-Users should be able to use a client to connect to the main orka nodes, which handle operations like content moderation, user access, federation access, and handover the user to the federated orka nodes which handle the actual communities, posts, and user data. 
+Users should be able to use a client to connect to the mother orka nodes, which handle operations like content moderation, user access, federation access, and handover the user to the federated orka nodes which handle the actual communities, posts, and user data. 
 
 ### PostgreSQL data structure
 
@@ -88,12 +88,20 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 |created_at|datetime||
 |updated_at|datetime||
 
+|orka_post_likes|type|comment|
+|-|-|-|
+|post_id|UUID|PK(post_id + user_id) FK orka_posts[id]|
+|user_id|UUID|FK orka_users[id]|
+|created_at|datetime||
+
 ### Cassandra data structure
 
 |instances|type|comment|
 |-|-|-|
-|instance_host|string|key|
-|name|string|key|
+|instance_id|UUID|key|
+|instance_cctld|string|partition key|
+|instance_host|string||
+|name|string||
 |description|string||
 |owner_user_id|UUID||
 |owner_email|string||
@@ -117,3 +125,15 @@ Users should be able to use a client to connect to the main orka nodes, which ha
 |created_at|datetime||
 |updated_at|datetime||
 
+|moderation_requests|type|comment|
+|-|-|-|
+|id|UUID|key|
+|instance_id|UUID|partition key|
+|moderator_id|UUID|id of the user moderating this request|
+|post_id|string||
+|user_comment|string||
+|report_flags|int64|int bit style content flags (global rules violation, instance rules violation, type of violation, etc)|
+|moderation_history|list[string]||
+|resolved|bool||
+|created_at|datetime||
+|updated_at|datetime||
